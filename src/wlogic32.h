@@ -107,22 +107,6 @@ public:
     void Normal(int l);
 
     /**
-    * @brief Triggers the flashing blue sequence on all lights
-    * 
-    */
-    void FlashingBlue(void);
-
-    /**
-    * @brief Triggers the flashing blue sequence on specific lights
-    * Light Selection:
-    * 0 - All Lights
-    * 1 - Front Lights
-    * 2 - Rear Lights
-    * @param l the light number (0-2)
-    */
-    void FlashingBlue(int l);
-
-    /**
     * @brief Triggers the alarm sequence on all lights
     * 
     */
@@ -249,6 +233,20 @@ public:
     void Rainbow(int l,int t);
     void Rainbow(int t);
     void Rainbow(void);
+
+    /**
+    * @brief Set lights to the Random Sequence
+    * 
+    * Light Selection:
+    * 0 - All Lights
+    * 1 - Front Lights
+    * 2 - Rear Lights
+    * @param l the light number (0-2)
+    * @param t the duration in seconds (integer)
+    */
+    void Random(int l,int t);
+    void Random(int t);
+    void Random(void);
 
 
 

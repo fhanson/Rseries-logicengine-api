@@ -91,30 +91,17 @@ void WLogicEngine::begin(const uint16_t refspeed)
 
 void WLogicEngine::sendCommand(String command)
 {
-    switch (connectionType)
-    {
-        case 0x01:
-            String serialcommand = command + "\r";
-            transmit(serialcommand,false);
-        case 0x02:
-            String serialcommandcmd = command + "\r";
-            transmit(serialcommand,false);
-        default: break;
-    }
+    String cmd = command + "\r";
+    // String cmd = "~RTLE57000\r";
+    transmit(cmd,false);
+    Serial.println("WLogicEngine SendCommand: " + cmd);
 }
 
 void WLogicEngine::transmit(String command)
 {
-    switch (connectionType)
-    {
-        case 0x01:
-            String cmd = command + "\r";
-            transmit(cmd,false);
-        case 0x02:
-            String cmd2 = command + "\r";
-            transmit(cmd2,false);
-        default: break;
-    }
+    String cmd = command + "\r";
+    transmit(cmd,false);
+    Serial.println("WLogicEngine Transmit: " + cmd);
 }
 
 void WLogicEngine::transmit(String command, bool retry)
@@ -127,10 +114,10 @@ void WLogicEngine::transmit(String command, bool retry)
     switch (connectionType)
     {
         case 0x01:
-            _serial->write((command + "\n").c_str());
+            _serial->write((command + "\r").c_str());
             break;
         case 0x02:
-            _softserial->write((command + "\n").c_str());
+            _softserial->write((command + "\r").c_str());
             break;
         default: break;
     }
@@ -168,7 +155,7 @@ void WLogicEngine::receive(void)
 
 void WLogicEngine::Leia(void)
 {
-    String msg = "1T6";
+    String msg = "~RTLE30000";
     sendCommand(msg);
 }
 
@@ -176,14 +163,14 @@ void WLogicEngine::Leia(int l)
 {
     // Set specific lights for Leia
     if ( l < 0 || l > 2 ) return;
-    String msg = String(l) + "T6";
+    String msg = "~RTLE" + String(l) + "30000";
     sendCommand(msg);
 }
 
 void WLogicEngine::Normal(void)
 {
     // Set all lights to normal
-    String msg = "0T1";
+    String msg = "~RTLE0";
     sendCommand(msg);
 }
 
@@ -191,22 +178,10 @@ void WLogicEngine::Normal(int l)
 {
     // Set specific lights to normal
     if ( l < 0 || l > 2 ) return;
-    String msg = String(l) + "T1";
-    sendCommand(msg);
-}
-
- void WLogicEngine::FlashingBlue(void)
-{
-    // Set all lights to flash blue
-    String msg = "0T2";
-    sendCommand(msg);
-}
-
-void WLogicEngine::FlashingBlue(int l)
-{
-    // Set specific lights to flash blue
-    if ( l < 0 || l > 2 ) return;
-    String msg = String(l) + "T2";
+    if ( l == 0 ) {
+        l = "";
+    }
+    String msg = "~RTLE" + String(l) + "00000";
     sendCommand(msg);
 }
 
@@ -274,7 +249,7 @@ void WLogicEngine::SetLightColor(int c)
 {
     // Set lights color
     if ( c < 0 || c > 9 ) return;
-    String msg = "~RTLE005" + String(c) + "500";
+    String msg = "~RTLE5" + String(c) + "500";
     sendCommand(msg);
 }
 
@@ -284,7 +259,20 @@ void WLogicEngine::SetLightColor(int l, int c, int t)
     if ( l < 0 || l > 2 ) return;
     if ( c < 0 || c > 9 ) return;
     if ( t < 0 || t > 99 ) return;
-    String msg = "~RTLE" + String(l) + "05" + String(c) + "5" + String(t);
+    
+    String time;
+    String lights;
+    if ( t < 10) {
+        time = "0" + String(t);
+    } else {
+        time = String(t);
+    }
+    if ( l == 0 ) {
+        lights = "";
+    } else {
+        lights = String(l);
+    }
+    String msg = "~RTLE" + String(l) + "05" + String(c) + "5" + time;
     sendCommand(msg);
 }
 
@@ -292,7 +280,7 @@ void WLogicEngine::FlashLightColor(int c)
 {
     // Set lights color
     if ( c < 0 || c > 9 ) return;
-    String msg = "~RTLE006" + String(c) + "500";
+    String msg = "~RTLE6" + String(c) + "500";
     sendCommand(msg);
 }
 
@@ -302,13 +290,26 @@ void WLogicEngine::FlashLightColor(int l, int c, int t)
     if ( l < 0 || l > 2 ) return;
     if ( c < 0 || c > 9 ) return;
     if ( t < 0 || t > 99 ) return;
-    String msg = "~RTLE" + String(l) + "06" + String(c) + "5" + String(t);
+    
+    String time;
+    String lights;
+    if ( t < 10) {
+        time = "0" + String(t);
+    } else {
+        time = String(t);
+    }
+    if ( l == 0 ) {
+        lights = "";
+    } else {
+        lights = String(l);
+    }
+    String msg = "~RTLE" + String(l) + "06" + String(c) + "5" + time;
     sendCommand(msg);
 }
 
 void WLogicEngine::Rainbow(void)
 {
-    String msg = "~RTLE0100500";
+    String msg = "~RTLE100500";
     sendCommand(msg);
 }
 
@@ -317,14 +318,75 @@ void WLogicEngine::Rainbow(int l, int t)
     // Set specificlights color
     if ( l < 0 || l > 2 ) return;
     if ( t < 0 || t > 99 ) return;
-    String msg = "~RTLE" + String(l) + "1005" + String(t);
+    
+    String time;
+    String lights;
+    if ( t < 10) {
+        time = "0" + String(t);
+    } else {
+        time = String(t);
+    }
+    if ( l == 0 ) {
+        lights = "";
+    } else {
+        lights = String(l);
+    }
+    String msg = "~RTLE" + lights + "1005" + time;
     sendCommand(msg);
 }
 
 void WLogicEngine::Rainbow(int l)
 {
+    String lights;
     // Set specificlights color
     if ( l < 0 || l > 2 ) return;
-    String msg = "~RTLE" + String(l) + "100500";
+    if ( l == 0 ) {
+        lights = "";
+    } else {
+        lights = String(l);
+    }
+    String msg = "~RTLE" + lights + "100500";
+    sendCommand(msg);
+}
+
+void WLogicEngine::Random(void)
+{
+    String msg = "~RTLE990500";
+    sendCommand(msg);
+}
+
+void WLogicEngine::Random(int l, int t)
+{
+    // Set specificlights color
+    if ( l < 0 || l > 2 ) return;
+    if ( t < 0 || t > 99 ) return;
+    
+    String time;
+    String lights;
+    if ( t < 10) {
+        time = "0" + String(t);
+    } else {
+        time = String(t);
+    }
+    if ( l == 0 ) {
+        lights = "";
+    } else {
+        lights = String(l);
+    }
+    String msg = "~RTLE" + lights + "9905" + time;
+    sendCommand(msg);
+}
+
+void WLogicEngine::Random(int l)
+{
+    String lights;
+    // Set specificlights color
+    if ( l < 0 || l > 2 ) return;
+    if ( l == 0 ) {
+        lights = "";
+    } else {
+        lights = String(l);
+    }
+    String msg = "~RTLE" + lights + "990500";
     sendCommand(msg);
 }
